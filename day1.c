@@ -1,3 +1,4 @@
+#include "include/log.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +21,7 @@ struct solution {
 };
 
 static void apply_rotation_1(struct solution *s, struct rotation r) {
-  // printf("apply: %c%d | init dial: %d ", r.direction, r.distance, s->dial);
+  debug("apply: %c%d | init dial: %d ", r.direction, r.distance, s->dial);
   switch (r.direction) {
   case 'R':
     for (int32_t i = 0; i < r.distance % 100; i++) {
@@ -41,11 +42,11 @@ static void apply_rotation_1(struct solution *s, struct rotation r) {
   }
   if (s->dial == 0)
     s->zeroes++;
-  // printf("| dial: %d | zeroes: %zu\n", s->dial, s->zeroes);
+  debug("| dial: %d | zeroes: %zu\n", s->dial, s->zeroes);
 }
 
 static void apply_rotation_2(struct solution *s, struct rotation r) {
-  // printf("apply: %c%d | init dial: %d ", r.direction, r.distance, s->dial);
+  debug("apply: %c%d | init dial: %d ", r.direction, r.distance, s->dial);
   switch (r.direction) {
   case 'R':
     s->zeroes += (r.distance / 100);
@@ -70,25 +71,7 @@ static void apply_rotation_2(struct solution *s, struct rotation r) {
     }
     break;
   }
-  // printf("| dial: %d | zeroes: %zu\n", s->dial, s->zeroes);
-}
-
-void debug() {
-  struct solution ss[] = {
-      {.zeroes = 0, .dial = 50}, {.zeroes = 0, .dial = 50},
-      {.zeroes = 0, .dial = 50}, {.zeroes = 0, .dial = 50},
-      {.zeroes = 0, .dial = 99}, {.zeroes = 0, .dial = 0},
-      {.zeroes = 0, .dial = 99},
-  };
-  struct rotation rs[] = {
-      {.direction = 'R', .distance = 50},  {.direction = 'L', .distance = 50},
-      {.direction = 'R', .distance = 150}, {.direction = 'L', .distance = 150},
-      {.direction = 'R', .distance = 1},   {.direction = 'L', .distance = 1},
-      {.direction = 'R', .distance = 2},
-  };
-  for (int i = 0; i < 5; i++) {
-    apply_rotation_1(&ss[i], rs[i]);
-  }
+  debug("| dial: %d | zeroes: %zu\n", s->dial, s->zeroes);
 }
 
 int main() {
