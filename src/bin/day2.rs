@@ -15,13 +15,7 @@ impl Solution<usize> for Day2 {
             .split(',')
             .map(|l| {
                 l.split_once('-')
-                    .map(|(start, end)| {
-                        (
-                            start.parse::<usize>().unwrap(),
-                            end.parse::<usize>().unwrap(),
-                        )
-                    })
-                    .map(|(start, end)| start..=end)
+                    .map(|(start, end)| start.parse().unwrap()..=end.parse().unwrap())
                     .unwrap()
             })
             .collect()
