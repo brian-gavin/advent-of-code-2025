@@ -43,20 +43,12 @@ impl Solution<usize> for Day4 {
 
 fn paper_can_be_removed(grid: &PaperGrid, coord: &Coord, has_paper: bool) -> bool {
     has_paper
-        && [
-            coord.north(1),
-            coord.northeast(1),
-            coord.east(1),
-            coord.southeast(1),
-            coord.south(1),
-            coord.southwest(1),
-            coord.west(1),
-            coord.northwest(1),
-        ]
-        .iter()
-        .filter(|c| grid.at(**c).cloned().unwrap_or_default())
-        .count()
-        .lt(&4)
+        && coord
+            .neighbors()
+            .iter()
+            .filter(|c| grid.at(**c).cloned().unwrap_or_default())
+            .count()
+            .lt(&4)
 }
 
 fn main() {

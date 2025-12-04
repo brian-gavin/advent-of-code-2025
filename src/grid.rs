@@ -63,6 +63,21 @@ impl Coord {
     pub fn northwest(self, n: isize) -> Coord {
         self.north(n).west(n)
     }
+
+    /// produces all 8 neighbors of self, in a clockwise order starting from N.
+    /// N, NE, E, SE, S, SW, W, NW
+    pub fn neighbors(self) -> [Coord; 8] {
+        [
+            self.north(1),
+            self.northeast(1),
+            self.east(1),
+            self.southeast(1),
+            self.south(1),
+            self.southwest(1),
+            self.west(1),
+            self.northwest(1),
+        ]
+    }
 }
 
 #[derive(Debug, Clone)]
