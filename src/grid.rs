@@ -70,20 +70,39 @@ pub struct Grid<V> {
     map: HashMap<Coord, V>,
 }
 
-impl<T> Grid<T> {
-    pub fn at(&self, coord: Coord) -> Option<&T> {
+impl<V: From<char>> Grid<V> {
+    pub fn from_input(s: &str) -> Self {
+        Self::from_input_fn(s, V::from)
+    }
+}
+
+impl<V> Grid<V> {
+    pub fn from_input_fn<F>(s: &str, from_char: F) -> Self
+    where
+        F: Fn(char) -> V,
+    {
+        Self::from_iter(s.lines().enumerate().flat_map(|(row, l)| {
+            l.char_indices()
+                .map(|(col, c)| (col, from_char(c)))
+                .map(move |(col, v)| (Coord::from((row as isize, col as isize)), v))
+        }))
+    }
+}
+
+impl<V> Grid<V> {
+    pub fn at(&self, coord: Coord) -> Option<&V> {
         self.map.get(&coord)
     }
 
-    pub fn at_mut(&mut self, coord: Coord) -> Option<&mut T> {
+    pub fn at_mut(&mut self, coord: Coord) -> Option<&mut V> {
         self.map.get_mut(&coord)
     }
 
-    pub fn insert(&mut self, coord: Coord, v: T) -> Option<T> {
+    pub fn insert(&mut self, coord: Coord, v: V) -> Option<V> {
         self.map.insert(coord, v)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (&Coord, &T)> {
+    pub fn iter(&self) -> impl Iterator<Item = (&Coord, &V)> {
         self.map.iter()
     }
 
