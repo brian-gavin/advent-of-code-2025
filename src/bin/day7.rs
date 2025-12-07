@@ -107,44 +107,39 @@ impl Solution<usize> for Day7 {
                 fill_paths(paths, grid, end, Path::Right, next_end(grid, end.east(1)));
             }
         }
-        let start = grid
-            .iter()
-            .find_map(|(coord, cell)| matches!(cell, Cell::Start).then_some(*coord))
-            .unwrap();
-        let first_split = next_end(&grid, start).0;
-        let mut paths = HashMap::new();
-        fill_paths(
-            &mut paths,
-            &grid,
-            first_split,
-            Path::Left,
-            next_end(&grid, first_split.west(1)),
-        );
-        fill_paths(
-            &mut paths,
-            &grid,
-            first_split,
-            Path::Right,
-            next_end(&grid, first_split.east(1)),
-        );
-        let mut splits = HashMap::new();
-        paths
+        let first_split = {
+            let start = grid
+                .iter()
+                .find_map(|(coord, cell)| matches!(cell, Cell::Start).then_some(*coord))
+                .unwrap();
+            next_end(&grid, start).0
+        };
+        let paths = {
+            let mut paths = HashMap::new();
+            let mut fill_first = |d, e| fill_paths(&mut paths, &grid, first_split, d, e);
+            fill_first(Path::Left, next_end(&grid, first_split.west(1)));
+            fill_first(Path::Right, next_end(&grid, first_split.east(1)));
+            paths
+        };
+        let splits = paths
             .values()
             .sorted()
             .rev()
             .cloned()
-            .chain(vec![first_split])
-            .for_each(|c| {
+            .chain([first_split])
+            .fold(HashMap::new(), |mut splits, c| {
                 let left_end = paths.get(&(c, Path::Left));
                 let right_end = paths.get(&(c, Path::Right));
                 match (left_end, right_end) {
                     (None, None) => {
-                        splits.insert(start, 0usize);
+                        splits.insert(c, 0usize);
+                        splits
                     }
                     (Some(left_end), Some(right_end)) => {
-                        let left = splits.get(left_end).cloned().unwrap_or_default();
-                        let right = splits.get(right_end).cloned().unwrap_or_default();
+                        let left = *splits.get(left_end).unwrap();
+                        let right = *splits.get(right_end).unwrap();
                         splits.insert(c, 1usize + left + right);
+                        splits
                     }
                     v => unreachable!("{:?}", v),
                 }
