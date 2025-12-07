@@ -24,7 +24,7 @@ impl Solution<usize> for Day5 {
     fn part1(input: Self::Input) -> usize {
         let (ranges, ids) = input;
         ids.into_iter()
-            .filter(|id| ranges.iter().find(|r| r.contains(id)).is_some())
+            .filter(|id| ranges.iter().any(|r| r.contains(id)))
             .count()
     }
 
@@ -32,11 +32,11 @@ impl Solution<usize> for Day5 {
         ranges.sort_by_key(|r| *r.start());
         let (first, ranges) = ranges.split_first().unwrap();
         ranges
-            .into_iter()
+            .iter()
             .fold(vec![first.clone()], |mut v, r2| {
                 let r1 = v.last_mut().unwrap();
                 if r1.contains(r2.start()) {
-                    *r1 = r1.start().clone()..=r2.end().max(r1.end()).clone();
+                    *r1 = *r1.start()..=*r2.end().max(r1.end());
                     v
                 } else {
                     v.push(r2.clone());

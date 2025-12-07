@@ -27,7 +27,7 @@ enum Part {
 }
 
 fn part() -> Part {
-    match args().last() {
+    match args().next_back() {
         Some(p) if p == "1" => Part::One,
         Some(p) if p == "2" => Part::Two,
         _ => bail("part not specified"),

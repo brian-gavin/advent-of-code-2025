@@ -25,7 +25,7 @@ impl Solution<usize> for Day2 {
         solve(input, |id| {
             let id = id.as_bytes();
             let (first, second) = id.split_at(id.len() / 2);
-            return first == second;
+            first == second
         })
     }
 
@@ -38,7 +38,7 @@ impl Solution<usize> for Day2 {
                     return true;
                 }
             }
-            return false;
+            false
         })
     }
 }

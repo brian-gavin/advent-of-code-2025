@@ -72,24 +72,25 @@ impl Solution<u64> for Day6 {
             let mut cols: Vec<String> = lines
                 .by_ref()
                 .nth(0)
-                .map(|l| l.chars().map(|c| String::from(c)).collect())
+                .map(|l| l.chars().map(String::from).collect())
                 .unwrap();
             lines.for_each(|l| l.char_indices().for_each(|(i, c)| cols[i].push(c)));
             cols
         };
+        type OpFn = fn(u64, u64) -> u64;
         cols.into_iter()
             .batching(|it| {
                 // split each column into the problems separated by a column of all space
                 // turning each column into a (num, Option<op>)
                 let (nums, op) = it
-                    .map_while(|s| -> Option<(u64, Option<fn(u64, u64) -> u64>)> {
+                    .map_while(|s| -> Option<(u64, Option<OpFn>)> {
                         if s.chars().all(|c| c.is_whitespace()) {
                             return None;
                         }
                         Some(s.chars().fold((0, None), |(n, op), c| match c {
                             '0'..='9' => (n * 10 + c.to_digit(10).unwrap() as u64, op),
-                            '+' => (n, Some(u64::wrapping_add as fn(u64, u64) -> u64)),
-                            '*' => (n, Some(u64::wrapping_mul as fn(u64, u64) -> u64)),
+                            '+' => (n, Some(u64::wrapping_add as OpFn)),
+                            '*' => (n, Some(u64::wrapping_mul as OpFn)),
                             _ => (n, op),
                         }))
                     })
