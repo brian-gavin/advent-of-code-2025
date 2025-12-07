@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 use aoc::{
     Solution,
@@ -73,30 +73,51 @@ impl Solution<usize> for Day7 {
     }
 
     fn part2(grid: Self::Input) -> usize {
-        use Cell::*;
-        let start = grid
-            .iter()
-            .find_map(|(coord, cell)| matches!(cell, Start).then_some(*coord))
-            .unwrap();
-        // simulation: each iter will move the current particle down one spot.
-        // if it reaches a Splitter, it will simulate starting from the two points.
-        // the current timeline will "end", being subsumed by the other two timelines.
-        fn simulate(grid: &Grid<Cell>, start: Coord) -> usize {
+        fn next_end(grid: &Grid<Cell>, start: Coord) -> (Coord, bool) {
             let mut cur = start;
             loop {
                 cur = cur.south(1);
                 match grid.at(cur) {
-                    None => {
-                        return 1;
-                    }
-                    Some(Splitter) => {
-                        return simulate(grid, cur.west(1)) + simulate(grid, cur.east(1));
-                    }
+                    Some(Cell::Splitter) => return (cur, true),
+                    None => return (cur, false),
                     Some(_) => (),
                 }
             }
         }
-        simulate(&grid, start)
+        fn fill_paths(
+            paths: &mut HashSet<(Coord, Coord)>,
+            grid: &Grid<Cell>,
+            start: Coord,
+            (end, is_splitter): (Coord, bool),
+        ) {
+            if paths.contains(&(start, end)) {
+                return;
+            }
+            paths.insert((start, end));
+            if is_splitter {
+                fill_paths(paths, grid, end, next_end(grid, end.west(1)));
+                fill_paths(paths, grid, end, next_end(grid, end.east(1)));
+            }
+        }
+        let start = grid
+            .iter()
+            .find_map(|(coord, cell)| matches!(cell, Cell::Start).then_some(*coord))
+            .unwrap();
+        let first_split = next_end(&grid, start).0;
+        let mut paths = HashSet::new();
+        fill_paths(
+            &mut paths,
+            &grid,
+            first_split,
+            next_end(&grid, first_split.west(1)),
+        );
+        fill_paths(
+            &mut paths,
+            &grid,
+            first_split,
+            next_end(&grid, first_split.east(1)),
+        );
+        paths.len()
     }
 }
 
