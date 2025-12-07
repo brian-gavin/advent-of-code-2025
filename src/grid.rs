@@ -121,6 +121,10 @@ impl<V> Grid<V> {
         self.map.iter()
     }
 
+    pub fn coords(&self) -> impl Iterator<Item = &Coord> {
+        self.map.keys()
+    }
+
     pub fn swap(&mut self, a: Coord, b: Coord) {
         assert_ne!(a, b);
         let ap = self.map.get_mut(&a).unwrap() as *mut _;

@@ -1,6 +1,7 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, ops::Not};
 
 use aoc::Solution;
+use itertools::Itertools;
 
 struct Day6;
 
@@ -76,38 +77,27 @@ impl Solution<u64> for Day6 {
             lines.for_each(|l| l.char_indices().for_each(|(i, c)| cols[i].push(c)));
             cols
         };
-        // split each column into groups of math separated by a column of all space
-        let groups = {
-            let (mut groups, last) =
-                cols.into_iter()
-                    .fold((vec![], vec![]), |(mut groups, mut cur), s| {
+        cols.into_iter()
+            .batching(|it| {
+                // split each column into the problems separated by a column of all space
+                // turning each column into a (num, Option<op>)
+                let (nums, op) = it
+                    .map_while(|s| -> Option<(u64, Option<fn(u64, u64) -> u64>)> {
                         if s.chars().all(|c| c.is_whitespace()) {
-                            groups.push(cur);
-                            (groups, vec![])
-                        } else {
-                            cur.push(s);
-                            (groups, cur)
+                            return None;
                         }
-                    });
-            groups.push(last);
-            groups
-        };
-        groups
-            .into_iter()
-            .map(|problem| -> (Vec<u64>, Option<fn(u64, u64) -> u64>) {
-                // turn the problem into its numbers and its operator
-                problem
-                    .into_iter()
-                    .fold((vec![], None), |(mut nums, op), s| {
-                        let (num, found_op) = s.chars().fold((0, None), |(n, op), c| match c {
+                        Some(s.chars().fold((0, None), |(n, op), c| match c {
                             '0'..='9' => (n * 10 + c.to_digit(10).unwrap() as u64, op),
                             '+' => (n, Some(u64::wrapping_add as fn(u64, u64) -> u64)),
                             '*' => (n, Some(u64::wrapping_mul as fn(u64, u64) -> u64)),
                             _ => (n, op),
-                        });
+                        }))
+                    })
+                    .fold((vec![], None), |(mut nums, op), (num, found_op)| {
                         nums.push(num);
                         (nums, op.or(found_op))
-                    })
+                    });
+                nums.is_empty().not().then_some((nums, op))
             })
             .map(|(nums, op)| (nums, op.unwrap()))
             .filter_map(|(nums, op)| nums.into_iter().reduce(op))
