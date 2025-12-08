@@ -5,6 +5,7 @@ use aoc::{
     grid::{Coord, Grid},
 };
 use itertools::Itertools;
+
 struct Day7;
 
 #[derive(Debug, Clone, Copy)]
